@@ -66,50 +66,55 @@ export async function initializeDatabase() {
         // Tabela Categorias
         await tempConnection.query(`
             CREATE TABLE IF NOT EXISTS categorias (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                nome VARCHAR(30) NOT NULL,
-                descricao VARCHAR(300) NULL
+                IIdCategoria INT AUTO_INCREMENT PRIMARY KEY,
+		        NomeCategoria VARCHAR(100) NOT NULL,
+		        Descricao VARCHAR(255),
+		        DataCad TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
 
         // Tabela Produtos
         await tempConnection.query(`
-            CREATE TABLE IF NOT EXISTS produtos (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                nome VARCHAR(30) NOT NULL,
-                valor DECIMAL(15,2) NOT NULL,
-                id_categoria INT,
-                FOREIGN KEY (id_categoria) REFERENCES categorias(id)
+            IdProduto INT AUTO_INCREMENT PRIMARY KEY,
+            IdCategoria INT NOT NULL,
+            NomeProduto VARCHAR(150) NOT NULL,
+            DescricaoProduto VARCHAR(255),
+            Preco DECIMAL(10,2) NOT NULL,
+            Imagem VARCHAR(255),
+            Estoque INT NOT NULL DEFAULT 0,
+            DataCad TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+        CONSTRAINT FK_Produtos_Categorias
+        FOREIGN KEY (IdCategoria)
+        REFERENCES Categorias(IdCategoria)
             );
         `);
 
         // Tabela Pedidos
         await tempConnection.query(`
-            CREATE TABLE IF NOT EXISTS pedidos (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                valor_total DECIMAL(15,2) NOT NULL,
-                status_pedido VARCHAR(50) NOT NULL
+            IdPedido INT AUTO_INCREMENT PRIMARY KEY,
+    ValorTotal DECIMAL(10,2) NOT NULL,
+    StatusPedido ENUM('Aberto','Finalizado','Pendente'),
+    DataCad TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
 
         // Tabela ItensPedido
         await tempConnection.query(`
-            CREATE TABLE IF NOT EXISTS itenspedido (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                id_pedido INT NOT NULL,
-                id_produto INT NOT NULL,
-                quantidade INT NOT NULL,
-                preco_unitario DECIMAL(15,2) NOT NULL,
+            IdItemPedido INT AUTO_INCREMENT PRIMARY KEY,
+    IdPedido INT NOT NULL,
+    IdProduto INT NOT NULL,
+    Quantidade INT NOT NULL,
+    PrecoUnitario DECIMAL(10,2) NOT NULL,
+    DataCad TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-                CONSTRAINT fk_itenspedido_pedido
-                    FOREIGN KEY (id_pedido)
-                    REFERENCES pedidos(id)
-                    ON DELETE CASCADE,
+    CONSTRAINT FK_ItensPedido_Pedidos
+        FOREIGN KEY (IdPedido)
+        REFERENCES Pedidos(IdPedido),
 
-                CONSTRAINT fk_itenspedido_produto
-                    FOREIGN KEY (id_produto)
-                    REFERENCES produtos(id)
-                    ON DELETE CASCADE
+    CONSTRAINT FK_ItensPedido_Produtos
+        FOREIGN KEY (IdProduto)
+        REFERENCES Produtos(IdProduto)
             );
         `);
 
